@@ -11,10 +11,10 @@ def crearOrden():
     os.system('cls')
     salchicha = chorizo = salami = longaniza = costilla = False
     print('Ingrese el nombre del cliente:')
-    nombre = input().capitalize()
+    nombre = input().upper()
     while not nombre:
         print('\nIngrese un nombre:')
-        nombre = input().capitalize()
+        nombre = input().upper()
         if nombre:
             break
     print('\nIngrese la cantidad de shucos de la orden:')

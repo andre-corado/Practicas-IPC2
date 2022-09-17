@@ -1,3 +1,7 @@
+import os
+import webbrowser
+from datetime import datetime
+
 class Pan:
     def __init__(self, salchicha, chorizo, salami, longaniza, costilla):
         self.salchicha = salchicha
@@ -66,6 +70,7 @@ class Cola:
                 actual = actual.siguiente
             actual.siguiente = Nodo(dato=orden)
             self.tiempoDeEsperaAcumulado += actual.siguiente.orden.tiempoDeOrden
+        self.graficar(datetime.now().strftime("%Y-%m-%d_a_las_%H.%M.%S"), 1)
 
     def pop(self):
         if self.primero is not None:
@@ -75,6 +80,7 @@ class Cola:
             self.tiempoDeEsperaAcumulado -= primerNodo.orden.tiempoDeOrden
             if self.primero:
                 self.actualizarTiemposdeEspera()
+            self.graficar(datetime.now().strftime("%Y-%m-%d_a_las_%H.%M.%S"), 2)
             return primerNodo
         else:
             return None
@@ -123,3 +129,38 @@ class Cola:
             contador += actual.orden.tiempoDeOrden
             actual.siguiente.orden.tiempoDeEspera = contador
             actual = actual.siguiente
+
+    def graficar(self, nombre, item):
+        actual = self.primero
+        graphviz = 'digraph Patron{ \n node[shape =box, width = 6, height = 2]; \n ranksep = 0 \n subgraph Cluster_A{ \n label = "' + 'Órdenes de Shucos' + '"   \n fontcolor ="black" \n fontsize = 41 \n bgcolor ="#c6e2e9" \n'
+        noOrden = 1
+        if actual is None:
+            graphviz += 'node' + str(noOrden) + '[label = "'+ 'No hay órdenes por el momento ' + '" fontcolor = "black" fontsize = 20 fillcolor = "#a7bed3" style = filled]; \n'
+
+        while actual:
+            orden = actual.orden
+            graphviz += 'node' + str(noOrden) + '[label = "' + 'Orden ' + str(noOrden) + '\n________________________________________________________________\n' + '\nCliente: ' + orden.nombre + '\n\n Cantidad de Shucos: ' + str(orden.cantidadShucos) + ' | Tiempo de Espera: ' + str(
+                orden.tiempoDeEspera) + 'min | Tiempo de Preparación: ' + str(orden.tiempoDeOrden)+ 'min' '" fontcolor = "black" fontsize = 20 fillcolor = "#a7bed3" style = filled]; \n'
+            actual = actual.siguiente
+            noOrden += 1
+        m = 1
+        a = 2
+        for h in range(noOrden - 2):
+            graphviz += 'node{}->node{} \n'.format(m, a)
+            m += 1
+            a += 1
+
+        graphviz += '} \n}'
+
+        document = 'ArchivoAuxiliarGraphViz' + '.txt'
+        with open(document, 'w') as grafica:
+            grafica.write(graphviz)
+
+        if item == 1:
+            jpg = 'OrdenAgregada_' + nombre + '.jpg'
+            os.system("dot.exe -Tjpg " + document + " -o " + jpg)
+            webbrowser.open(jpg)
+        elif item == 2:
+            jpg = 'OrdenEntregada_' + nombre + '.jpg'
+            os.system("dot.exe -Tjpg " + document + " -o " + jpg)
+            webbrowser.open(jpg)
